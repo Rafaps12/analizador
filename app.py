@@ -773,7 +773,7 @@ def analyze_chat_internal(payload):
 #     senders = {}
 #     results = {}
 #     total_messages = 0
-#     total_toxic_messages = 0
+#     total_toxic_messages = 0 
 #     all_content = ""  # To store all the messages for global summary
 
 #     # Prepare data per sender
@@ -921,7 +921,7 @@ def analyze_chat():
 
 
 @app.route('/translate-response', methods=['POST'])
-def translate_response():
+def translate_response(): 
     data = request.get_json()
     if not data:
         return jsonify({"error": "No JSON data provided."}), 400
