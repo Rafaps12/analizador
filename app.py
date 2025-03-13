@@ -575,6 +575,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from botocore.exceptions import BotoCoreError, ClientError
+from cohere import ClassifyExample
+
 
 # Evitar error de `epoll` en Windows
 if not hasattr(select, "epoll"):
