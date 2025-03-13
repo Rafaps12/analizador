@@ -592,9 +592,23 @@ logger = logging.getLogger(__name__)
 # Inicializar Flask
 app = Flask(__name__)
 
-# ✅ HABILITAR CORS PARA PETICIONES DESDE CUALQUIER DOMINIO
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    return response
+
+# ✅ Manejar preflight requests explícitamente
+@app.route('/analyze-and-translate-chat', methods=['OPTIONS'])
+def handle_preflight():
+    response = jsonify({'message': 'Preflight OK'})
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    return response, 200
 # Configure Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -953,6 +967,8 @@ def translate_response():
 @app.route('/analyze-and-translate-chat', methods=['POST'])
 def analyze_and_translate_chat():
     data = request.get_json()
+        if data is None:
+        return jsonify({"error": "Invalid JSON. Ensure the request has 'Content-Type: application/json'"}), 415
     if 'chat_id' not in data or 'messages' not in data:
         return jsonify({"error": "Invalid request format. Please specify 'chat_id' and 'messages' keys."}), 400
 
