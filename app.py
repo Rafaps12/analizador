@@ -566,21 +566,19 @@
 
 import os
 import logging
+import select
 import concurrent.futures
 import pandas as pd
-from flask import Flask, request, jsonify
-from flask_cors import CORS  # ✅ Importamos CORS
-from dotenv import load_dotenv
 import cohere
-from cohere import ClassifyExample
 import boto3
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from dotenv import load_dotenv
 from botocore.exceptions import BotoCoreError, ClientError
-import copy
-import select 
 
-# 📌 🔧 SOLUCIÓN PARA WINDOWS: Evitar el error de `epoll`
+# Evitar error de `epoll` en Windows
 if not hasattr(select, "epoll"):
-    select.epoll = select.poll  # En Windows, `epoll` no existe, usamos `poll`
+    select.epoll = select.poll  
 
 # Cargar variables de entorno
 load_dotenv()
@@ -591,7 +589,6 @@ logger = logging.getLogger(__name__)
 
 # Inicializar Flask
 app = Flask(__name__)
-
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 @app.after_request
@@ -601,7 +598,7 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     return response
 
-# ✅ Manejar preflight requests explícitamente
+# Manejar preflight requests
 @app.route('/analyze-and-translate-chat', methods=['OPTIONS'])
 def handle_preflight():
     response = jsonify({'message': 'Preflight OK'})
@@ -609,19 +606,13 @@ def handle_preflight():
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     return response, 200
-# Configure Logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-# Initialize Cohere client
+# Inicializar clientes externos
 co = cohere.Client(os.getenv("CO_API_KEY"))
-
-# Initialize AWS Translate client
 translate_client = boto3.client(
     'translate',
     region_name=os.getenv('AWS_REGION', 'eu-east-2')  # Default region if not set
 )
-
 
 def load_examples_from_csv(csv_path):
     df = pd.read_csv(csv_path, encoding='ISO-8859-1')
