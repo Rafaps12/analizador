@@ -967,8 +967,7 @@ def translate_response():
 @app.route('/analyze-and-translate-chat', methods=['POST'])
 def analyze_and_translate_chat():
     data = request.get_json()
-        if data is None:
-        return jsonify({"error": "Invalid JSON. Ensure the request has 'Content-Type: application/json'"}), 415
+    
     if 'chat_id' not in data or 'messages' not in data:
         return jsonify({"error": "Invalid request format. Please specify 'chat_id' and 'messages' keys."}), 400
 
