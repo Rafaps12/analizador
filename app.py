@@ -576,6 +576,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from botocore.exceptions import BotoCoreError, ClientError
 from cohere import ClassifyExample
+import copy
+
 
 
 # Evitar error de `epoll` en Windows
