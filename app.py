@@ -1090,5 +1090,5 @@ def analyze_and_translate_sample():
         return jsonify({"error": "Failed to process sample data."}), 500
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)), debug=True)
