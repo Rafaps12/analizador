@@ -3,12 +3,18 @@ import logging
 import concurrent.futures
 import pandas as pd
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # ✅ Importamos CORS
 from dotenv import load_dotenv
 import cohere
 from cohere import ClassifyExample
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 import copy
+import select  # ✅ Importamos select para manejar epoll en Windows
+
+# 📌 🔧 SOLUCIÓN PARA WINDOWS: Evitar el error de `epoll`
+if not hasattr(select, "epoll"):
+    select.epoll = select.poll  # En Windows, `epoll` no existe, usamos `poll`
 
 # Cargar variables de entorno
 load_dotenv()
@@ -19,6 +25,9 @@ logger = logging.getLogger(__name__)
 
 # Inicializar Flask
 app = Flask(__name__)
+
+# ✅ HABILITAR CORS PARA PETICIONES DESDE CUALQUIER DOMINIO
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Inicializar Cohere
 CO_API_KEY = os.getenv("CO_API_KEY")
@@ -170,4 +179,4 @@ def translate_response():
 
 # 📌 **INICIAR SERVIDOR**
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=8080)  # Permite conexiones externas
